@@ -2,4 +2,4 @@ datasets
 transformers
 torch
 torchcodec
-
+ffmpeg-python
