@@ -38,8 +38,7 @@ class SongsDataset(Dataset):
 
             try:
                 waveform = ffmpeg_decode(audio_item)
-                samp_rate = 16000
-                audio_inputs = feature_extractor(waveform.numpy(), sampling_rate=samp_rate, return_tensors="pt")
+                audio_inputs = feature_extractor(waveform.numpy(), sampling_rate = 16000, return_tensors="pt")
                 self.data.append(audio_inputs)
                 self.data_tensors.append(audio_inputs.input_values)
                 self.genre_labels.append(genre_item)
@@ -74,8 +73,8 @@ def ffmpeg_decode(audiobytes):
     except Exception as e:
         raise print("ffmpeg_decode Error:", e)
 
-    #transform into waveform into proper format and normalize to use in AST feature extractor
-    #transform pcmint16 byte data into number representation, convert to float32 for ASTFeatureExtractor, then divide by |minimum int16 value| to normalize s16 to [-1, 1]
+    #transform into proper format and normalize to use in AST feature extractor
+    #convert pcmint16 byte data into number representation, convert to float32 for ASTFeatureExtractor, then divide by |minimum int16 value| to normalize s16 to [-1, 1]
     waveform_encoding = np.frombuffer(output, np.int16).astype(np.float32) / 32768.0
 
     #transform into pytorch tensor
