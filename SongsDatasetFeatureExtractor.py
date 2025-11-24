@@ -22,17 +22,12 @@ class SongsDataset(Dataset):
         #disable default audio decoder
         train_data = train_data.cast_column("audio", Audio(decode=False))
 
-        print(len(train_data))
-
         # construct the AST feature extractor to pull features from the 
         feature_extractor = ASTFeatureExtractor(num_mel_bins=16)
 
         # build the audio and genre data by building the tensors from each audio item
         # and storing them with genre labels
-        t = 0
         for data_item in train_data:
-            t = t+1
-            #print(t)
             audio_item = data_item["audio"]["bytes"]
             genre_item = data_item['genre']
 
@@ -44,8 +39,6 @@ class SongsDataset(Dataset):
                 self.genre_labels.append(genre_item)
             except Exception as e: 
                 print("SongsDataset Error:", e)
-
-            #if t==100: break
 
         for idx in range(len(self.genre_labels)):
             temp_tensor = torch.tensor([self.genre_labels[idx]], dtype=torch.long)
