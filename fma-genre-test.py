@@ -11,22 +11,22 @@ import io
 import numpy as np
 
 def ffmpeg_decode(audiobytes):
-	try:
+    try:
         #must use pcm_s16le acodec and then normalize so that waveform is expected size for feature extractor, error can be ignored just want output
-		output, error = (
-			ffmpeg.input("pipe:", format="mp3").output("pipe:", format="wav", acodec="pcm_s16le", ar = 16000, ac = 1).run(input=audiobytes, capture_stdout=True, quiet = True)
-		)
-	except Exception as e:
-		raise print("ffmpeg_decode Error:", type(e), e)
+        output, error = (
+            ffmpeg.input("pipe:", format="mp3").output("pipe:", format="wav", acodec="pcm_s16le", ar = 16000, ac = 1).run(input=audiobytes, capture_stdout=True, quiet = True)
+        )
+    except Exception as e:
+        raise print("ffmpeg_decode Error:", type(e), e)
 
-	#transform into waveform into proper size and normalize to use in AST feature extractor
+    #transform into waveform into proper size and normalize to use in AST feature extractor
     #transform pcm int16 into byte stream of int16, convert to float32, then divide |minimum int16 value| to normalize
-	waveform_encoding = np.frombuffer(output, np.int16).astype(np.float32) / 32768.0
+    waveform_encoding = np.frombuffer(output, np.int16).astype(np.float32) / 32768.0
 
-	#transform into pytorch tensor
-	waveform_tensor = torch.tensor(waveform_encoding).unsqueeze(0)
-
-	return waveform_tensor
+    #transform into pytorch tensor
+    waveform_tensor = torch.tensor(waveform_encoding).unsqueeze(0)
+    
+    return waveform_tensor
 
 class SongsDataset(Dataset):
     def __init__(self, data_dir):
@@ -61,14 +61,14 @@ class SongsDataset(Dataset):
                 continue
 
             try:
-            	waveform = ffmpeg_decode(audio_item)
-            	samp_rate = 16000
-            	audio_inputs = feature_extractor(waveform.squeeze().numpy(), sampling_rate=samp_rate, return_tensors="pt")
-            	self.data.append(audio_inputs)
-            	self.data_tensors.append(audio_inputs.input_values)
-            	self.genre_labels.append(genre_item)
+                waveform = ffmpeg_decode(audio_item)
+                samp_rate = 16000
+                audio_inputs = feature_extractor(waveform.squeeze().numpy(), sampling_rate=samp_rate, return_tensors="pt")
+                self.data.append(audio_inputs)
+                self.data_tensors.append(audio_inputs.input_values)
+                self.genre_labels.append(genre_item)
             except Exception as e: 
-            	print("SongsDataset Error:", e)
+                print("SongsDataset Error:", e)
 
             
             #if t==100: break
