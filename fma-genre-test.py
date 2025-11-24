@@ -1,32 +1,12 @@
 
 from datasets import load_dataset
 from torch import nn, randn
-import os
 import ffmpeg
 import torch
 from datasets import load_dataset, Audio
 from torch.utils.data import Dataset
 from transformers import ASTFeatureExtractor
-import io
 import numpy as np
-
-def ffmpeg_decode(audiobytes):
-    try:
-        #use pcm_s16le acodec and then normalize so that waveform is expected size for feature extractor, error can be ignored just want output
-        output, error = (
-            ffmpeg.input("pipe:", format="mp3").output("pipe:", format="wav", acodec="pcm_s16le", ar = 16000, ac = 1).run(input=audiobytes, capture_stdout=True, quiet = True)
-        )
-    except Exception as e:
-        raise print("ffmpeg_decode Error:", type(e), e)
-
-    #transform into waveform into proper format and normalize to use in AST feature extractor
-    #transform pcmint16 byte data into number representation, convert to float32 for ASTFeatureExtractor, then divide by |minimum int16 value| to normalize s16 to [-1, 1]
-    waveform_encoding = np.frombuffer(output, np.int16).astype(np.float32) / 32768.0
-
-    #transform into pytorch tensor
-    waveform_tensor = torch.tensor(waveform_encoding).unsqueeze(0)
-    
-    return waveform_tensor
 
 class SongsDataset(Dataset):
     def __init__(self, data_dir):
@@ -56,14 +36,10 @@ class SongsDataset(Dataset):
             audio_item = data_item["audio"]["bytes"]
             genre_item = data_item['genre']
 
-            if audio_item is None:
-                print("Skipping empty audio item")
-                continue
-
             try:
                 waveform = ffmpeg_decode(audio_item)
                 samp_rate = 16000
-                audio_inputs = feature_extractor(waveform.squeeze().numpy(), sampling_rate=samp_rate, return_tensors="pt")
+                audio_inputs = feature_extractor(waveform.numpy(), sampling_rate=samp_rate, return_tensors="pt")
                 self.data.append(audio_inputs)
                 self.data_tensors.append(audio_inputs.input_values)
                 self.genre_labels.append(genre_item)
@@ -87,6 +63,25 @@ class SongsDataset(Dataset):
         genre_label_tensor = self.genre_labels_tensors[idx]
 
         return genre_label_tensor, audio_data_tensor, genre_label, audio_data_item
+
+
+def ffmpeg_decode(audiobytes):
+    try:
+        #use pcm_s16le acodec and then normalize so that waveform is expected size for feature extractor, error can be ignored just want output
+        output, error = (
+            ffmpeg.input("pipe:", format="mp3").output("pipe:", format="wav", acodec="pcm_s16le", ar = 16000, ac = 1).run(input=audiobytes, capture_stdout=True, quiet = True)
+        )
+    except Exception as e:
+        raise print("ffmpeg_decode Error:", e)
+
+    #transform into waveform into proper format and normalize to use in AST feature extractor
+    #transform pcmint16 byte data into number representation, convert to float32 for ASTFeatureExtractor, then divide by |minimum int16 value| to normalize s16 to [-1, 1]
+    waveform_encoding = np.frombuffer(output, np.int16).astype(np.float32) / 32768.0
+
+    #transform into pytorch tensor
+    waveform_tensor = torch.tensor(waveform_encoding)
+    
+    return waveform_tensor
 
 # Load the dataset
 dataset = SongsDataset("rpmon/fma-genre-classification")
