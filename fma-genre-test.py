@@ -12,15 +12,15 @@ import numpy as np
 
 def ffmpeg_decode(audiobytes):
     try:
-        #must use pcm_s16le acodec and then normalize so that waveform is expected size for feature extractor, error can be ignored just want output
+        #use pcm_s16le acodec and then normalize so that waveform is expected size for feature extractor, error can be ignored just want output
         output, error = (
             ffmpeg.input("pipe:", format="mp3").output("pipe:", format="wav", acodec="pcm_s16le", ar = 16000, ac = 1).run(input=audiobytes, capture_stdout=True, quiet = True)
         )
     except Exception as e:
         raise print("ffmpeg_decode Error:", type(e), e)
 
-    #transform into waveform into proper size and normalize to use in AST feature extractor
-    #transform pcm int16 into byte stream of int16, convert to float32, then divide |minimum int16 value| to normalize
+    #transform into waveform into proper format and normalize to use in AST feature extractor
+    #transform pcmint16 byte data into number representation, convert to float32 for ASTFeatureExtractor, then divide by |minimum int16 value| to normalize s16 to [-1, 1]
     waveform_encoding = np.frombuffer(output, np.int16).astype(np.float32) / 32768.0
 
     #transform into pytorch tensor
