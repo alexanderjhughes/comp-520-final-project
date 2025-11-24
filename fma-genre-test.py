@@ -8,6 +8,9 @@ from torch.utils.data import Dataset
 from transformers import ASTFeatureExtractor
 import numpy as np
 
+# SongsDataset Class
+# inherits torch.utils.data.Dataset
+# extracts tensors from audio sample/genre database
 class SongsDataset(Dataset):
     def __init__(self, data_dir):
         self.data = []
@@ -29,9 +32,7 @@ class SongsDataset(Dataset):
 
         # build the audio and genre data by building the tensors from each audio item
         # and storing them with genre labels
-        t = 0
         for data_item in train_data:
-            t = t+1
             #print(t)
             audio_item = data_item["audio"]["bytes"]
             genre_item = data_item['genre']
@@ -44,9 +45,6 @@ class SongsDataset(Dataset):
                 self.genre_labels.append(genre_item)
             except Exception as e: 
                 print("SongsDataset Error:", e)
-
-            
-            #if t==100: break
 
         for idx in range(len(self.genre_labels)):
             temp_tensor = torch.tensor([self.genre_labels[idx]], dtype=torch.long)
@@ -62,6 +60,22 @@ class SongsDataset(Dataset):
         genre_label_tensor = self.genre_labels_tensors[idx]
 
         return genre_label_tensor, audio_data_tensor, genre_label, audio_data_item
+
+
+class SongRNN(nn.Module):
+    def __init__(self, input_size, hidden_size, output_size):
+        super(SongRNN, self).__init__()
+
+        self.rnn = nn.RNN(input_size, hidden_size)
+        self.h2o = nn.Linear(hidden_size, output_size)
+        self.softmax = nn.LogSoftmax(dim=1)
+
+    def forward(self, line_tensor):
+        rnn_out, hidden = self.rnn(line_tensor)
+        output = self.h2o(hidden[0])
+        output = self.softmax(output)
+
+        return output
 
 
 def ffmpeg_decode(audiobytes):
@@ -81,6 +95,7 @@ def ffmpeg_decode(audiobytes):
     waveform_tensor = torch.tensor(waveform_encoding)
     
     return waveform_tensor
+
 
 # Load the dataset
 dataset = SongsDataset("rpmon/fma-genre-classification")
