@@ -45,7 +45,6 @@ class SongsDataset(Dataset):
             except Exception as e: 
                 print("SongsDataset Error:", e)
 
-            
             #if t==100: break
 
         for idx in range(len(self.genre_labels)):
@@ -62,6 +61,15 @@ class SongsDataset(Dataset):
         genre_label_tensor = self.genre_labels_tensors[idx]
 
         return genre_label_tensor, audio_data_tensor, genre_label, audio_data_item
+    
+    def save_all(self, prefix="songsdata"):
+        self.save_tensors(prefix)
+        np.save(f"{prefix}_genre_labels.npy", np.array(self.genre_labels, dtype=object))
+
+    def save_tensors(self, prefix="songsdata"):
+        torch.save(self.data, f"{prefix}_data.pt")
+        torch.save(self.data_tensors, f"{prefix}_audio_features.pt")
+        torch.save(self.genre_labels_tensors, f"{prefix}_genre_labels.pt")
 
 
 def ffmpeg_decode(audiobytes):
@@ -86,6 +94,8 @@ def ffmpeg_decode(audiobytes):
 dataset = SongsDataset("rpmon/fma-genre-classification")
 print(f"loaded {len(dataset)} items of data")
 print(f"example = {dataset[0]}")
+# Save all tensors
+dataset.save_all("songsdata-november-24")
 
 '''
 # Process with AST feature extractor
