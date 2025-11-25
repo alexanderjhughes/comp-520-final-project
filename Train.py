@@ -47,5 +47,7 @@ def train(rnn, training_data, n_epoch = 10, n_batch_size = 64, report_every = 50
         if iter % report_every == 0:
             print(f"{iter} ({iter / n_epoch:.0%}): \t average batch loss = {all_losses[-1]}")
         current_loss = 0
+    
+    torch.save(rnn.state_dict(), "rnn_model.pth")
 
     return all_losses
