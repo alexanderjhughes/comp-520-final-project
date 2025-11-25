@@ -46,6 +46,7 @@ class SongsDataset(Dataset):
             temp_tensor = torch.tensor([self.genre_labels[idx]], dtype=torch.long)
             self.genre_labels_tensors.append(temp_tensor)
 
+    '''
     def __len__(self):
         return len(self.data)
 
@@ -56,7 +57,8 @@ class SongsDataset(Dataset):
         genre_label_tensor = self.genre_labels_tensors[idx]
 
         return genre_label_tensor, audio_data_tensor, genre_label, audio_data_item
-    
+    '''
+
     def save_all(self, prefix="songsdata"):
         self.save_tensors(prefix)
         np.save(f"{prefix}_genre_labels.npy", np.array(self.genre_labels, dtype=object))
@@ -85,20 +87,10 @@ def ffmpeg_decode(audiobytes):
     
     return waveform_tensor
 
-# Load the dataset
-dataset = SongsDataset("rpmon/fma-genre-classification")
-print(f"loaded {len(dataset)} items of data")
-print(f"example = {dataset[0]}")
-# Save all tensors
-dataset.save_all("songsdata-november-24")
-
-'''
-# Process with AST feature extractor
-#print(len(inputs))
-
-rnn = torch.nn.RNN(16, 200, 2)
-h0 = torch.randn(2, 1024, 200)
-output, hn = rnn(torch.input_values,h0)
-
-print(output)
-'''
+if __name__ == '__main__':
+    # Load the dataset
+    dataset = SongsDataset("rpmon/fma-genre-classification")
+    print(f"loaded {len(dataset)} items of data")
+    print(f"example = {dataset[0]}")
+    # Save all tensors
+    dataset.save_all("songsdata-november-24")
