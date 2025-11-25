@@ -7,7 +7,7 @@ import random
 import Train
 
 class SongsFeatureTraining(nn.Module):
-    def __init__(self, data_dir):
+    def __init__(self):
         super(SongsFeatureTraining, self).__init__()
 
         self.data = []
@@ -22,12 +22,6 @@ class SongsFeatureTraining(nn.Module):
         self.rnn = nn.RNN(self.input_size, self.hidden_size, self.hidden_layers)
         self.h2o = nn.Linear(self.hidden_size, len(self.genres_uniq))
         self.softmax = nn.LogSoftmax(dim=1)
-
-        # load the dataset from output files
-        # self.data = torch.load(f"{data_dir}_data.pt")
-        self.data_tensors = torch.load(f"{data_dir}_audio_features.pt")
-        self.genre_labels_tensors = torch.load(f"{data_dir}_genre_labels.pt")
-        # self.genre_labels = np.load(f"{data_dir}_genre_labels.npy", allow_pickle=True).tolist()
     
     def forward(self, line_tensor):
         rnn_out, hidden = self.rnn(line_tensor)
@@ -41,12 +35,20 @@ class SongsFeatureTraining(nn.Module):
         label_i = top_i[0].item()
         return output_labels[label_i], label_i
 
+class SongsFeatureDataset():
+    def __init__(self, data_dir):
+        # load the dataset from output files
+        # self.data = torch.load(f"{data_dir}_data.pt")
+        self.data_tensors = torch.load(f"{data_dir}_audio_features.pt")
+        self.genre_labels_tensors = torch.load(f"{data_dir}_genre_labels.pt")
+        # self.genre_labels = np.load(f"{data_dir}_genre_labels.npy", allow_pickle=True).tolist()
 
 def main():
-    rnn = SongsFeatureTraining("songsdata-november-24")
+    dataset = SongsFeatureDataset("songsdata-november-24")
+    rnn = SongsFeatureTraining()
     print("RNN Initialized: ", rnn)
     print("Example forward pass output: ", rnn.forward(torch.randn(1, 1, rnn.input_size)))
-    print(Train.train(rnn, rnn.data_tensors))
+    print(Train.train(rnn, dataset.data_tensors))
 
 if __name__ == "__main__":
     main()
