@@ -39,11 +39,12 @@ class SongsFeatureTraining(nn.Module):
         label_i = top_i[0].item()
         return output_labels[label_i], label_i
 
-    def train(rnn, training_data, n_epoch = 10, n_batch_size = 64, report_every = 50, learning_rate = 0.2, criterion = nn.NLLLoss()):
+    def train(rnn, n_epoch = 10, n_batch_size = 64, report_every = 50, learning_rate = 0.2, criterion = nn.NLLLoss()):
         """
         Learn on a batch of training_data for a specified number of iterations and reporting thresholds
         """
         # Keep track of losses for plotting
+        training_data = rnn.data_tensors
         current_loss = 0
         all_losses = []
         rnn.train()
