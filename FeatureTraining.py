@@ -4,6 +4,8 @@ from torch.utils.data import Dataset
 import numpy as np
 import random
 
+import Train
+
 class SongsFeatureTraining(nn.Module):
     def __init__(self, data_dir):
         super(SongsFeatureTraining, self).__init__()
@@ -39,57 +41,12 @@ class SongsFeatureTraining(nn.Module):
         label_i = top_i[0].item()
         return output_labels[label_i], label_i
 
-    def train(rnn, n_epoch = 10, n_batch_size = 64, report_every = 50, learning_rate = 0.2, criterion = nn.NLLLoss()):
-        """
-        Learn on a batch of training_data for a specified number of iterations and reporting thresholds
-        """
-        # Keep track of losses for plotting
-        training_data = rnn.data_tensors
-        current_loss = 0
-        all_losses = []
-        rnn.train()
-        optimizer = torch.optim.SGD(rnn.parameters(), lr=learning_rate)
-
-        start = time.time()
-        print(f"training on data set with n = {len(training_data)}")
-
-        for iter in range(1, n_epoch + 1):
-            rnn.zero_grad() # clear the gradients
-
-            # create some minibatches
-            # we cannot use dataloaders because each of our names is a different length
-            batches = list(range(len(training_data)))
-            random.shuffle(batches)
-            batches = np.array_split(batches, len(batches) //n_batch_size )
-
-            for idx, batch in enumerate(batches):
-                batch_loss = 0
-                for i in batch: #for each example in this batch
-                    (label_tensor, text_tensor, label, text) = training_data[i]
-                    output = rnn.forward(text_tensor)
-                    loss = criterion(output, label_tensor)
-                    batch_loss += loss
-
-                # optimize parameters
-                batch_loss.backward()
-                nn.utils.clip_grad_norm_(rnn.parameters(), 3)
-                optimizer.step()
-                optimizer.zero_grad()
-
-                current_loss += batch_loss.item() / len(batch)
-
-            all_losses.append(current_loss / len(batches) )
-            if iter % report_every == 0:
-                print(f"{iter} ({iter / n_epoch:.0%}): \t average batch loss = {all_losses[-1]}")
-            current_loss = 0
-
-        return all_losses
 
 def main():
     rnn = SongsFeatureTraining("songsdata-november-24")
     print("RNN Initialized: ", rnn)
     print("Example forward pass output: ", rnn.forward(torch.randn(1, 1, rnn.input_size)))
-    print(rnn.train(rnn, rnn.data_tensors))
+    print(Train.train(rnn, rnn.data_tensors))
 
 if __name__ == "__main__":
     main()
