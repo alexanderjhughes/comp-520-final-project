@@ -47,7 +47,7 @@ def main():
     dataset = SongsFeatureDataset("songsdata-november-24")
     rnn = SongsFeatureTraining()
     print("RNN Initialized: ", rnn)
-    print("Example forward pass output: ", rnn.forward(torch.randn(1, 1, rnn.input_size)))
+    print('Starting Training...')
     print(Train.train(rnn, dataset.data_tensors))
 
 if __name__ == "__main__":
