@@ -19,7 +19,6 @@ class SongsFeatureTraining(nn.Module):
         self.rnn = nn.RNN(self.input_size, self.hidden_size, self.hidden_layers)
         self.h2o = nn.Linear(self.hidden_size, len(self.genres_uniq))
         self.softmax = nn.LogSoftmax(dim=1)
-        print("RNN parameters:", print(self.rnn))
 
         # load the dataset from output files
         # self.data = torch.load(f"{data_dir}_data.pt")
@@ -34,21 +33,9 @@ class SongsFeatureTraining(nn.Module):
 
         return output
 
-    def __len__(self):
-        return len(self.data)
-
-    def __getitem__(self, idx):
-        audio_data_item = self.data[idx]
-        genre_label = self.genre_labels[idx]
-        audio_data_tensor = self.data_tensors[idx]
-        genre_label_tensor = self.genre_labels_tensors[idx]
-
-        return genre_label_tensor, audio_data_tensor, genre_label, audio_data_item
-
 def main():
-    dataset = SongsFeatureTraining("songsdata-november-24")
-    print(f"loaded {len(dataset)} items of data")
-    print(f"example = {dataset[0]}")
+    rnn = SongsFeatureTraining("songsdata-november-24")
+    print("RNN Initialized: ", rnn)
 
 if __name__ == "__main__":
     main()
