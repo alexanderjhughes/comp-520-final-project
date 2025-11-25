@@ -41,7 +41,9 @@ class SongsDataset(Dataset):
                 print("SongsDataset Error:", e)
 
         for idx in range(len(self.genre_labels)):
-            temp_tensor = torch.tensor([self.genres_uniq[self.genre_labels[idx]]], dtype=torch.long)
+            print(self.genre_labels[idx])
+            print(self.genres_uniq)
+            temp_tensor = torch.tensor([self.genre_labels[idx]], dtype=torch.long)
             self.genre_labels_tensors.append(temp_tensor)
 
     def __len__(self):

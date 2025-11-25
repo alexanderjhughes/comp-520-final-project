@@ -24,8 +24,8 @@ class SongsFeatureTraining(nn.Module):
         self.softmax = nn.LogSoftmax(dim=1)
     
     def forward(self, line_tensor):
-        rnn_out, hidden = self.rnn(line_tensor)
-        output = self.h2o(hidden[0])
+        rnn_out, hidden = self.rnn(line_tensor.permute(1, 0, 2))
+        output = self.h2o(hidden[-1])
         output = self.softmax(output)
 
         return output

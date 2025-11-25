@@ -1,6 +1,7 @@
 import torch, random, time
 from torch import nn
 import numpy as np
+from tqdm import tqdm
 
 def train(rnn, training_data, n_epoch = 10, n_batch_size = 64, report_every = 50, learning_rate = 0.2, criterion = nn.NLLLoss()):
     """
@@ -23,18 +24,20 @@ def train(rnn, training_data, n_epoch = 10, n_batch_size = 64, report_every = 50
         batches = list(range(len(training_data)))
         random.shuffle(batches)
         batches = np.array_split(batches, len(batches) //n_batch_size )
-        print(f"Epoch {iter}: {len(batches)} batches of size up to {n_batch_size}")
+        #print(f"Epoch {iter}: {len(batches)} batches of size up to {n_batch_size}")
 
-        for idx, batch in enumerate(batches):
+        progress_meter = tqdm(batches, desc=f"Epoch {iter}", unit="batch")
+
+        for batch in progress_meter:
             batch_loss = 0
             for i in batch: #for each example in this batch
-                print(training_data[i])
+                #print(training_data[i])
                 (genre_label_tensor, feature_tensor) = training_data[i]
                 output = rnn.forward(feature_tensor)
-                print("Output:", output)
-                print("Genre Label Tensor:", genre_label_tensor)
+                #print("Output:", output)
+                #print("Genre Label Tensor:", genre_label_tensor)
                 loss = criterion(output, genre_label_tensor)
-                print("Loss:", loss.item())
+                #print("Loss:", loss.item())
                 batch_loss += loss
 
             # optimize parameters
@@ -42,6 +45,8 @@ def train(rnn, training_data, n_epoch = 10, n_batch_size = 64, report_every = 50
             nn.utils.clip_grad_norm_(rnn.parameters(), 3)
             optimizer.step()
             optimizer.zero_grad()
+
+            progress_meter.set_postfix(loss=batch_loss.item() / len(batch))
 
             current_loss += batch_loss.item() / len(batch)
 
