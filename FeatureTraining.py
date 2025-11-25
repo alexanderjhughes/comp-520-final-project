@@ -49,7 +49,7 @@ def main():
     rnn = SongsFeatureTraining()
     print("RNN Initialized: ", rnn)
     print('Starting Training...')
-    print(Train.train(rnn, dataset.data_tensors))
+    print(Train.train(rnn, dataset.data))
 
 if __name__ == "__main__":
     main()
