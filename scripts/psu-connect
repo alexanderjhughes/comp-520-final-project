@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+GATEWAY="us-east-chi-pennstat.gposy5j2csn2.gw.gpcloudservice.com"
+
+echo "Logging in to PSU GlobalProtect using SAML..."
+echo
+
+# Run gp-saml and capture output
+OUT=$(gp-saml-gui --gateway "$GATEWAY" 2>/dev/null)
+
+# # Extract fields
+HOST=$(echo "$OUT" | sed -n 's/^HOST=//p')
+USER=$(echo "$OUT" | sed -n "s/^USER=['\"]\{0,1\}\([^'\" ]*\).*$/\1/p")
+COOKIE=$(echo "$OUT" | sed -n 's/^COOKIE=//p')
+OS=$(echo "$OUT" | sed -n 's/^OS=//p')
+
+# Validate
+if [[ -z "$COOKIE" ]]; then
+    echo "❌ Error: Could not get cookie from gp-saml."
+    echo "Output:"
+    echo "$OUT"
+    exit 1
+fi
+
+echo "✔ Authentication successful. Launching openconnect..."
+
+# Run openconnect
+echo ${COOKIE} | sudo openconnect \
+    --protocol=gp \
+    '--useragent=PAN GlobalProtect' \
+    --user=${USER} \
+    --os=${OS} \
+    --usergroup=gateway:prelogin-cookie \
+    --passwd-on-stdin \
+    ${GATEWAY}
