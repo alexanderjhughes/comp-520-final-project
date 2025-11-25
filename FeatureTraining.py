@@ -42,6 +42,7 @@ class SongsFeatureDataset():
         self.data_tensors = torch.load(f"{data_dir}_audio_features.pt")
         self.genre_labels_tensors = torch.load(f"{data_dir}_genre_labels.pt")
         # self.genre_labels = np.load(f"{data_dir}_genre_labels.npy", allow_pickle=True).tolist()
+        self.data = list(zip(self.genre_labels_tensors, self.data_tensors))
 
 def main():
     dataset = SongsFeatureDataset("songsdata-november-24")
