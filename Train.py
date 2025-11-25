@@ -29,10 +29,12 @@ def train(rnn, training_data, n_epoch = 10, n_batch_size = 64, report_every = 50
             batch_loss = 0
             for i in batch: #for each example in this batch
                 print(training_data[i])
-                print('will fail here')
                 (genre_label_tensor, feature_tensor) = training_data[i]
                 output = rnn.forward(feature_tensor)
+                print("Output:", output)
+                print("Genre Label Tensor:", genre_label_tensor)
                 loss = criterion(output, genre_label_tensor)
+                print("Loss:", loss.item())
                 batch_loss += loss
 
             # optimize parameters

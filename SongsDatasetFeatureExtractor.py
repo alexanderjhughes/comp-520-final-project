@@ -30,6 +30,8 @@ class SongsDataset(Dataset):
         for data_item in train_data:
             audio_item = data_item["audio"]["bytes"]
             genre_item = data_item['genre']
+            print(genre_item)
+            print(self.genres_uniq[genre_item])
 
             try:
                 waveform = ffmpeg_decode(audio_item)
@@ -41,7 +43,7 @@ class SongsDataset(Dataset):
                 print("SongsDataset Error:", e)
 
         for idx in range(len(self.genre_labels)):
-            temp_tensor = torch.tensor([self.genres_uniq[(self.genre_labels[idx])]], dtype=torch.long)
+            temp_tensor = torch.tensor([self.genres_uniq[self.genre_labels[idx]]], dtype=torch.long)
             self.genre_labels_tensors.append(temp_tensor)
 
     def __len__(self):
