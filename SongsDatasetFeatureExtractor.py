@@ -30,8 +30,6 @@ class SongsDataset(Dataset):
         for data_item in train_data:
             audio_item = data_item["audio"]["bytes"]
             genre_item = data_item['genre']
-            print(genre_item)
-            print(self.genres_uniq[genre_item])
 
             try:
                 waveform = ffmpeg_decode(audio_item)
