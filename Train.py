@@ -28,6 +28,7 @@ def train(rnn, training_data, n_epoch = 10, n_batch_size = 64, report_every = 50
         print(f"Epoch {iter} out of {n_epoch}: {len(batches)} batches of size up to {n_batch_size}")
         progress_meter = tqdm(batches, desc=f"Epoch {iter}", unit="batch")
 
+        batchNumberForPrinting = 0
         for batch in progress_meter:
             batch_loss = 0
             for i in batch: #for each example in this batch
@@ -47,9 +48,10 @@ def train(rnn, training_data, n_epoch = 10, n_batch_size = 64, report_every = 50
             optimizer.zero_grad()
 
             progress_meter.set_postfix(loss=batch_loss.item() / len(batch))
-            print("Batch Number: ", batch[0], " Loss: ", batch_loss.item() / len(batch))
+            print(f"Batch Number: {batchNumberForPrinting}, Loss: {batch_loss.item() / len(batch)}")
 
             current_loss += batch_loss.item() / len(batch)
+            batchNumberForPrinting += 1
 
         all_losses.append(current_loss / len(batches) )
         if iter % report_every == 0:
