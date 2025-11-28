@@ -23,9 +23,9 @@ def train(rnn, training_data, n_epoch = 10, n_batch_size = 64, report_every = 50
         # we cannot use dataloaders because each of our names is a different length
         batches = list(range(len(training_data)))
         random.shuffle(batches)
-        batches = np.array_split(batches, len(batches) //n_batch_size )
-        #print(f"Epoch {iter}: {len(batches)} batches of size up to {n_batch_size}")
+        batches = np.array_split(batches, len(batches) // n_batch_size )
 
+        print(f"Epoch {iter} out of {n_epoch}: {len(batches)} batches of size up to {n_batch_size}")
         progress_meter = tqdm(batches, desc=f"Epoch {iter}", unit="batch")
 
         for batch in progress_meter:
