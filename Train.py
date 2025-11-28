@@ -48,7 +48,7 @@ def train(rnn, training_data, n_epoch = 10, n_batch_size = 64, report_every = 50
             optimizer.zero_grad()
 
             progress_meter.set_postfix(loss=batch_loss.item() / len(batch))
-            print(f"Batch Number: {batchNumberForPrinting}, Loss: {batch_loss.item() / len(batch)}")
+            print(f"Batch Number: {batchNumberForPrinting}, Loss: {batch_loss.item() / len(batch)}", flush=True)
 
             current_loss += batch_loss.item() / len(batch)
             batchNumberForPrinting += 1
