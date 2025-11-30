@@ -1,9 +1,7 @@
 
-from datasets import load_dataset
-from torch import nn, randn
+from datasets import Audio, load_dataset
 import ffmpeg
 import torch
-from datasets import load_dataset, Audio
 from torch.utils.data import Dataset
 from transformers import ASTFeatureExtractor
 import numpy as np
