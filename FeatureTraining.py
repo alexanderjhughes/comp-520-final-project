@@ -1,8 +1,5 @@
-from torch import nn, randn
+from torch import nn
 import torch
-from torch.utils.data import Dataset
-import numpy as np
-import random
 
 import Train
 
@@ -10,10 +7,6 @@ class SongsFeatureTraining(nn.Module):
     def __init__(self):
         super(SongsFeatureTraining, self).__init__()
 
-        self.data = []
-        self.data_tensors = []
-        self.genre_labels = []
-        self.genre_labels_tensors = []
         self.genres_uniq = ['Electronic', 'Experimental', 'Folk', 'Hip-Hop', 'Instrumental', 'International', 'Pop', 'Rock']
         self.input_size = 128
         self.hidden_size = 64
@@ -44,10 +37,10 @@ class SongsFeatureDataset():
     def __init__(self, data_dir):
         # load the dataset from output files
         # self.data = torch.load(f"{data_dir}_data.pt")
-        self.data_tensors = torch.load(f"{data_dir}_audio_features.pt")
-        self.genre_labels_tensors = torch.load(f"{data_dir}_genre_labels.pt")
+        data_tensors = torch.load(f"{data_dir}_audio_features.pt")
+        genre_labels_tensors = torch.load(f"{data_dir}_genre_labels.pt")
         # self.genre_labels = np.load(f"{data_dir}_genre_labels.npy", allow_pickle=True).tolist()
-        self.data = list(zip(self.genre_labels_tensors, self.data_tensors))
+        self.data = list(zip(genre_labels_tensors, data_tensors))
 
 def main():
     dataset = SongsFeatureDataset("songsdata-november-24")
