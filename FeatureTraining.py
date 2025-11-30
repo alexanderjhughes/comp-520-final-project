@@ -15,17 +15,22 @@ class SongsFeatureTraining(nn.Module):
         self.genre_labels = []
         self.genre_labels_tensors = []
         self.genres_uniq = ['Electronic', 'Experimental', 'Folk', 'Hip-Hop', 'Instrumental', 'International', 'Pop', 'Rock']
-        self.input_size = 16
+        self.input_size = 128
         self.hidden_size = 64
-        self.hidden_layers = len(self.genres_uniq)
+        self.hidden_layers = 1
+        self.layernorm = nn.LayerNorm(self.hidden_size)
+        self.attention = nn.Linear(self.hidden_size, 1)
 
-        self.rnn = nn.RNN(self.input_size, self.hidden_size, self.hidden_layers)
+        self.rnn = nn.GRU(self.input_size, self.hidden_size, self.hidden_layers)
         self.h2o = nn.Linear(self.hidden_size, len(self.genres_uniq))
         self.softmax = nn.LogSoftmax(dim=1)
     
     def forward(self, line_tensor):
-        rnn_out, hidden = self.rnn(line_tensor.permute(1, 0, 2))
-        output = self.h2o(hidden[-1])
+        rnn_out, hidden = self.rnn(line_tensor.permute(1, 0, 2), None)
+        rnn_out = self.layernorm(rnn_out)
+        attn_weights = torch.softmax(self.attention(rnn_out),dim=0)
+        output = (attn_weights * rnn_out).sum(dim=0)
+        output = self.h2o(output)
         output = self.softmax(output)
 
         return output
