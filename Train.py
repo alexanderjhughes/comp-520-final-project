@@ -3,17 +3,15 @@ from torch import nn
 import numpy as np
 from tqdm import tqdm
 
-def train(rnn, training_data, n_epoch = 20, n_batch_size = 64, report_every = 50, learning_rate = 0.001, criterion = nn.NLLLoss()):
+def train(rnn, training_data, n_epoch = 10, n_batch_size = 64, report_every = 50, learning_rate = 0.2, criterion = nn.NLLLoss()):
     """
     Learn on a batch of training_data for a specified number of iterations and reporting thresholds
     """
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    rnn.to(device)
     # Keep track of losses for plotting
     current_loss = 0
     all_losses = []
     rnn.train()
-    optimizer = torch.optim.Adam(rnn.parameters(), lr=learning_rate)
+    optimizer = torch.optim.SGD(rnn.parameters(), lr=learning_rate)
 
     start = time.time()
     print(f"training on data set with n = {len(training_data)}")
@@ -31,14 +29,11 @@ def train(rnn, training_data, n_epoch = 20, n_batch_size = 64, report_every = 50
         progress_meter = tqdm(batches, desc=f"Epoch {iter}", unit="batch")
 
         for batch in progress_meter:
-            batch_loss = 0.0
-            optimizer.zero_grad()
+            batch_loss = 0
             for i in batch: #for each example in this batch
                 #print(training_data[i])
                 (genre_label_tensor, feature_tensor) = training_data[i]
-                feature_tensor = feature_tensor.to(device)
-                genre_label_tensor = genre_label_tensor.to(device)
-                output = rnn(feature_tensor)
+                output = rnn.forward(feature_tensor)
                 #print("Output:", output)
                 #print("Genre Label Tensor:", genre_label_tensor)
                 loss = criterion(output, genre_label_tensor)
@@ -47,9 +42,9 @@ def train(rnn, training_data, n_epoch = 20, n_batch_size = 64, report_every = 50
 
             # optimize parameters
             batch_loss.backward()
-            nn.utils.clip_grad_norm_(rnn.parameters(), 3.0)
+            nn.utils.clip_grad_norm_(rnn.parameters(), 3)
             optimizer.step()
-            
+            optimizer.zero_grad()
 
             progress_meter.set_postfix(loss=batch_loss.item() / len(batch))
 
