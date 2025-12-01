@@ -1,16 +1,52 @@
 from torch import nn
 import torch
-
+import argparse
 import Train
 
+parser = argparse.ArgumentParser(
+    description='Train RNN on Songs Dataset Features'
+)
+
+parser.add_argument(
+    '-e',
+    '--epochs',
+    type=int,
+    default=40,
+    help='Number of epochs to train the model'
+)
+
+parser.add_argument(
+    '-l',
+    '--learning_rate',
+    type=float,
+    default=0.005,
+    help='Learning rate for training the model'
+)
+
+parser.add_argument(
+    '-o',
+    '--output_file_name',
+    type=str,
+    default="rnn_model.pth",
+    help='Output file name for the trained model'
+)
+
+parser.add_argument(
+    '-hl',
+    '--hidden_layers_count',
+    type=int,
+    default=1,
+    help='Number of hidden layers in the RNN'
+)
+
 class SongsFeatureRNN(nn.Module):
-    def __init__(self):
+    def __init__(self, hidden_layers_count= 1):
         super(SongsFeatureRNN, self).__init__()
 
         self.genres_uniq = ['Electronic', 'Experimental', 'Folk', 'Hip-Hop', 'Instrumental', 'International', 'Pop', 'Rock']
         self.input_size = 128
         self.hidden_size = 64
-        self.hidden_layers = 1
+        self.hidden_layers = hidden_layers_count
         self.layernorm = nn.LayerNorm(self.hidden_size)
         self.attention = nn.Linear(self.hidden_size, 1)
 
@@ -43,11 +79,12 @@ class SongsFeatureDataset():
         self.data = list(zip(genre_labels_tensors, data_tensors))
 
 def main():
+    args = parser.parse_args()
     dataset = SongsFeatureDataset("songsdata-november-24")
-    rnn = SongsFeatureRNN()
+    rnn = SongsFeatureRNN(args.hidden_layers_count)
     print("RNN Initialized: ", rnn)
     print('Starting Training...')
-    print(Train.train(rnn, dataset.data))
+    print(Train.train(rnn, dataset.data, n_epoch=args.epochs, learning_rate=args.learning_rate, output_file_name=args.output_file_name))
 
 if __name__ == "__main__":
     main()
