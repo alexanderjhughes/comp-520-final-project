@@ -3,7 +3,7 @@ from torch import nn
 import numpy as np
 from tqdm import tqdm
 
-def train(rnn, training_data, n_epoch = 20, n_batch_size = 64, report_every = 50, learning_rate = 0.001, criterion = nn.NLLLoss()):
+def train(rnn, training_data, n_epoch, learning_rate, output_file_name = 'rnn_model.pth', n_batch_size = 64, report_every = 50, criterion = nn.NLLLoss()):
     """
     Learn on a batch of training_data for a specified number of iterations and reporting thresholds
     """
@@ -63,6 +63,6 @@ def train(rnn, training_data, n_epoch = 20, n_batch_size = 64, report_every = 50
             print(f"{iter} ({iter / n_epoch:.0%}): \t average batch loss = {all_losses[-1]}")
         current_loss = 0
     
-    torch.save(rnn.state_dict(), "rnn_model.pth")
+    torch.save(rnn.state_dict(), output_file_name)
 
     return all_losses
