@@ -25,11 +25,12 @@ def train(rnn, training_data, n_epoch = 20, n_batch_size = 64, report_every = 50
         # we cannot use dataloaders because each of our names is a different length
         batches = list(range(len(training_data)))
         random.shuffle(batches)
-        batches = np.array_split(batches, len(batches) //n_batch_size )
-        #print(f"Epoch {iter}: {len(batches)} batches of size up to {n_batch_size}")
+        batches = np.array_split(batches, len(batches) // n_batch_size )
 
+        print(f"Epoch {iter} out of {n_epoch}: {len(batches)} batches of size up to {n_batch_size}")
         progress_meter = tqdm(batches, desc=f"Epoch {iter}", unit="batch")
 
+        batchNumberForPrinting = 0
         for batch in progress_meter:
             batch_loss = 0.0
             optimizer.zero_grad()
@@ -52,8 +53,10 @@ def train(rnn, training_data, n_epoch = 20, n_batch_size = 64, report_every = 50
             
 
             progress_meter.set_postfix(loss=batch_loss.item() / len(batch))
+            print(f"Batch Number: {batchNumberForPrinting}, Loss: {batch_loss.item() / len(batch)}", flush=True)
 
             current_loss += batch_loss.item() / len(batch)
+            batchNumberForPrinting += 1
 
         all_losses.append(current_loss / len(batches) )
         if iter % report_every == 0:

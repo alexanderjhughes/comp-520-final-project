@@ -116,20 +116,10 @@ def ffmpeg_decode(audiobytes):
     
     return waveform_tensor
 
-# Load the dataset
-dataset = SongsDataset("rpmon/fma-genre-classification")
-print(f"loaded {len(dataset)} items of data")
-print(f"example = {dataset[0]}")
-# Save all tensors
-dataset.save_all("songsdata-november-24")
-
-'''
-# Process with AST feature extractor
-#print(len(inputs))
-
-rnn = torch.nn.RNN(16, 200, 2)
-h0 = torch.randn(2, 1024, 200)
-output, hn = rnn(torch.input_values,h0)
-
-print(output)
-'''
+if __name__ == '__main__':
+    # Load the dataset
+    dataset = SongsDataset("rpmon/fma-genre-classification")
+    print(f"loaded {len(dataset)} items of data")
+    print(f"example = {dataset[0]}")
+    # Save all tensors
+    dataset.save_all("songsdata-november-24")

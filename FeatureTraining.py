@@ -3,9 +3,9 @@ import torch
 
 import Train
 
-class SongsFeatureTraining(nn.Module):
+class SongsFeatureRNN(nn.Module):
     def __init__(self):
-        super(SongsFeatureTraining, self).__init__()
+        super(SongsFeatureRNN, self).__init__()
 
         self.genres_uniq = ['Electronic', 'Experimental', 'Folk', 'Hip-Hop', 'Instrumental', 'International', 'Pop', 'Rock']
         self.input_size = 128
@@ -44,7 +44,7 @@ class SongsFeatureDataset():
 
 def main():
     dataset = SongsFeatureDataset("songsdata-november-24")
-    rnn = SongsFeatureTraining()
+    rnn = SongsFeatureRNN()
     print("RNN Initialized: ", rnn)
     print('Starting Training...')
     print(Train.train(rnn, dataset.data))
