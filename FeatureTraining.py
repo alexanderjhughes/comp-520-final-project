@@ -1,52 +1,23 @@
-from torch import nn
+from torch import nn, randn
 import torch
-import argparse
+from torch.utils.data import Dataset
+import numpy as np
+import random
+
 import Train
 
-parser = argparse.ArgumentParser(
-    description='Train RNN on Songs Dataset Features'
-)
+class SongsFeatureTraining(nn.Module):
+    def __init__(self):
+        super(SongsFeatureTraining, self).__init__()
 
-parser.add_argument(
-    '-e',
-    '--epochs',
-    type=int,
-    default=40,
-    help='Number of epochs to train the model'
-)
-
-parser.add_argument(
-    '-l',
-    '--learning_rate',
-    type=float,
-    default=0.005,
-    help='Learning rate for training the model'
-)
-
-parser.add_argument(
-    '-o',
-    '--output_file_name',
-    type=str,
-    default="rnn_model.pth",
-    help='Output file name for the trained model'
-)
-
-parser.add_argument(
-    '-hl',
-    '--hidden_layers_count',
-    type=int,
-    default=1,
-    help='Number of hidden layers in the RNN'
-)
-
-class SongsFeatureRNN(nn.Module):
-    def __init__(self, hidden_layers_count= 1):
-        super(SongsFeatureRNN, self).__init__()
-
+        self.data = []
+        self.data_tensors = []
+        self.genre_labels = []
+        self.genre_labels_tensors = []
         self.genres_uniq = ['Electronic', 'Experimental', 'Folk', 'Hip-Hop', 'Instrumental', 'International', 'Pop', 'Rock']
         self.input_size = 128
         self.hidden_size = 64
-        self.hidden_layers = hidden_layers_count
+        self.hidden_layers = 1
         self.layernorm = nn.LayerNorm(self.hidden_size)
         self.attention = nn.Linear(self.hidden_size, 1)
 
@@ -73,18 +44,17 @@ class SongsFeatureDataset():
     def __init__(self, data_dir):
         # load the dataset from output files
         # self.data = torch.load(f"{data_dir}_data.pt")
-        data_tensors = torch.load(f"{data_dir}_audio_features.pt")
-        genre_labels_tensors = torch.load(f"{data_dir}_genre_labels.pt")
+        self.data_tensors = torch.load(f"{data_dir}_audio_features.pt")
+        self.genre_labels_tensors = torch.load(f"{data_dir}_genre_labels.pt")
         # self.genre_labels = np.load(f"{data_dir}_genre_labels.npy", allow_pickle=True).tolist()
-        self.data = list(zip(genre_labels_tensors, data_tensors))
+        self.data = list(zip(self.genre_labels_tensors, self.data_tensors))
 
 def main():
-    args = parser.parse_args()
     dataset = SongsFeatureDataset("songsdata-november-24")
-    rnn = SongsFeatureRNN(args.hidden_layers_count)
+    rnn = SongsFeatureTraining()
     print("RNN Initialized: ", rnn)
     print('Starting Training...')
-    print(Train.train(rnn, dataset.data, n_epoch=args.epochs, learning_rate=args.learning_rate, output_file_name=args.output_file_name))
+    print(Train.train(rnn, dataset.data))
 
 if __name__ == "__main__":
     main()

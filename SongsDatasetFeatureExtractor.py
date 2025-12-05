@@ -1,7 +1,8 @@
-
-from datasets import Audio, load_dataset
+from datasets import load_dataset
+from torch import nn, randn
 import ffmpeg
 import torch
+from datasets import load_dataset, Audio
 from torch.utils.data import Dataset
 from transformers import ASTFeatureExtractor
 import numpy as np
@@ -51,8 +52,8 @@ class SongsDataset(Dataset):
             self.genre_labels_tensors.append(temp_tensor)
 
         for val_data_item in validation_data:
-            audio_item = data_item["audio"]["bytes"]
-            genre_item = data_item['genre']
+            audio_item = val_data_item["audio"]["bytes"]
+            genre_item = val_data_item['genre']
 
             try:
                 waveform = ffmpeg_decode(audio_item)
@@ -116,10 +117,20 @@ def ffmpeg_decode(audiobytes):
     
     return waveform_tensor
 
-if __name__ == '__main__':
-    # Load the dataset
-    dataset = SongsDataset("rpmon/fma-genre-classification")
-    print(f"loaded {len(dataset)} items of data")
-    print(f"example = {dataset[0]}")
-    # Save all tensors
-    dataset.save_all("songsdata-november-24")
+# Load the dataset
+dataset = SongsDataset("rpmon/fma-genre-classification")
+print(f"loaded {len(dataset)} items of data")
+print(f"example = {dataset[0]}")
+# Save all tensors
+dataset.save_all("songsdata-november-24")
+
+'''
+# Process with AST feature extractor
+#print(len(inputs))
+
+rnn = torch.nn.RNN(16, 200, 2)
+h0 = torch.randn(2, 1024, 200)
+output, hn = rnn(torch.input_values,h0)
+
+print(output)
+'''
