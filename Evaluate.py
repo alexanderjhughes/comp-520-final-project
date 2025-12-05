@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
-from FeatureTraining import SongsFeatureTraining
+from FeatureTraining import SongsFeatureRNN
 
 model_dir = "rnn_model.pth"
 validation_data_dir = "songsdata-november-24_validation_audio_features.pt"
@@ -12,7 +12,7 @@ genres_uniq = ['Electronic', 'Experimental', 'Folk', 'Hip-Hop', 'Instrumental', 
 def load_model():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    model = SongsFeatureTraining()
+    model = SongsFeatureRNN()
     model.load_state_dict(torch.load(model_dir, map_location=device))
     model.to(device)
     model.eval()
@@ -25,8 +25,10 @@ def load_dataset():
     return validation_dataset, validation_labels 
     print("Dataset loaded\n\n")
 
-def validation_accuracy(model, device, validation_samples, labels):
-    print("Calculating accuracy")
+def evaluate_model(model, device, validation_samples, labels):
+    print("Evaluating Model\n\n")
+    criterion = nn.NLLLoss()
+    loss = 0
     correctly_predicted = 0
     total_samples = len(validation_samples)
 
@@ -35,37 +37,27 @@ def validation_accuracy(model, device, validation_samples, labels):
             current_sample = validation_samples[i].to(device)
             current_label = labels[i].to(device)
 
-
-            prediction = model(current_sample).argmax(dim=1)
+            result = model(current_sample)
+            prediction = result.argmax(dim=1)
             #print('Prediction: ', prediction.item())
             #print('actual: ', current_label.item())
             if prediction.item() == current_label.item():
                 correctly_predicted += 1
 
-    return correctly_predicted / total_samples
 
-def validation_loss(model, device, validation_samples, labels):
-    print("Calculating Loss\n\n")
-    criterion = nn.NLLLoss()
-    loss = 0
+            loss += criterion(result, current_label).item()
 
-    with torch.no_grad():
-        for i in range(len(validation_samples)):
-            current_sample = validation_samples[i].to(device)
-            current_label = labels[i].to(device)
+    final_loss = loss / total_samples
+    final_accuracy = correctly_predicted / total_samples
 
-            loss += criterion(model(current_sample), current_label).item()
-
-    return loss / len(validation_samples)
+    return final_accuracy, final_loss
 
 def main():
     model, device = load_model()
     validation_dataset, validation_labels = load_dataset()
 
-    accuracy = validation_accuracy(model, device, validation_dataset, validation_labels)
-    print(f"Validation Accuracy: {accuracy:.4f}\n\n")
-
-    loss = validation_loss(model, device, validation_dataset, validation_labels)
+    accuracy, loss = evaluate_model(model, device, validation_dataset, validation_labels)
+    print(f"Validation Accuracy: {accuracy:.4f}\n")
     print(f"Validation Loss: {loss:.4f}\n\n")
 
 if __name__ == "__main__":
