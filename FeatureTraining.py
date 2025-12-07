@@ -4,7 +4,7 @@ import argparse
 import Train
 
 parser = argparse.ArgumentParser(
-    description='Train RNN on Songs Dataset Features'
+    description='Train GRU on Songs Dataset Features'
 )
 
 parser.add_argument(
@@ -36,7 +36,7 @@ parser.add_argument(
     '--hidden_layers_count',
     type=int,
     default=1,
-    help='Number of hidden layers in the RNN'
+    help='Number of hidden layers in the GRU'
 )
 
 class SongsFeatureRNN(nn.Module):
