@@ -51,8 +51,8 @@ class SongsDataset(Dataset):
             self.genre_labels_tensors.append(temp_tensor)
 
         for val_data_item in validation_data:
-            audio_item = data_item["audio"]["bytes"]
-            genre_item = data_item['genre']
+            audio_item = val_data_item["audio"]["bytes"]
+            genre_item = val_data_item['genre']
 
             try:
                 waveform = ffmpeg_decode(audio_item)

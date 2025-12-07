@@ -1,10 +1,11 @@
+#!/usr/bin/env python3
 from torch import nn
 import torch
 import argparse
 import Train
 
 parser = argparse.ArgumentParser(
-    description='Train RNN on Songs Dataset Features'
+    description='Train GRU on Songs Dataset Features'
 )
 
 parser.add_argument(
@@ -27,7 +28,7 @@ parser.add_argument(
     '-o',
     '--output_file_name',
     type=str,
-    default="rnn_model.pth",
+    default="gru_model.pth",
     help='Output file name for the trained model'
 )
 
@@ -36,7 +37,7 @@ parser.add_argument(
     '--hidden_layers_count',
     type=int,
     default=1,
-    help='Number of hidden layers in the RNN'
+    help='Number of hidden layers in the GRU'
 )
 
 class SongsFeatureRNN(nn.Module):
@@ -82,7 +83,7 @@ def main():
     args = parser.parse_args()
     dataset = SongsFeatureDataset("songsdata-november-24")
     rnn = SongsFeatureRNN(args.hidden_layers_count)
-    print("RNN Initialized: ", rnn)
+    print("GRU Initialized: ", rnn)
     print('Starting Training...')
     print(Train.train(rnn, dataset.data, n_epoch=args.epochs, learning_rate=args.learning_rate, output_file_name=args.output_file_name))
 

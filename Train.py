@@ -3,7 +3,7 @@ from torch import nn
 import numpy as np
 from tqdm import tqdm
 
-def train(rnn, training_data, n_epoch, learning_rate, output_file_name = 'rnn_model.pth', n_batch_size = 64, report_every = 50, criterion = nn.NLLLoss()):
+def train(rnn, training_data, n_epoch, learning_rate, output_file_name = 'gru_model.pth', n_batch_size = 64, report_every = 50, criterion = nn.NLLLoss()):
     """
     Learn on a batch of training_data for a specified number of iterations and reporting thresholds
     """
@@ -30,7 +30,6 @@ def train(rnn, training_data, n_epoch, learning_rate, output_file_name = 'rnn_mo
         print(f"Epoch {iter} out of {n_epoch}: {len(batches)} batches of size up to {n_batch_size}")
         progress_meter = tqdm(batches, desc=f"Epoch {iter}", unit="batch")
 
-        batchNumberForPrinting = 0
         for batch in progress_meter:
             batch_loss = 0.0
             optimizer.zero_grad()
@@ -53,10 +52,8 @@ def train(rnn, training_data, n_epoch, learning_rate, output_file_name = 'rnn_mo
             
 
             progress_meter.set_postfix(loss=batch_loss.item() / len(batch))
-            # print(f"Batch Number: {batchNumberForPrinting}, Loss: {batch_loss.item() / len(batch)}", flush=True)
 
             current_loss += batch_loss.item() / len(batch)
-            batchNumberForPrinting += 1
 
         all_losses.append(current_loss / len(batches) )
         if iter % report_every == 0:
