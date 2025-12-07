@@ -29,11 +29,15 @@ class SongsDataset(Dataset):
         # construct the AST feature extractor to pull features from the 
         feature_extractor = ASTFeatureExtractor(num_mel_bins=128)
 
+        eachGenreCount = {}
         # build the audio and genre data by building the tensors from each audio item
         # and storing them with genre labels
         for data_item in train_data:
             audio_item = data_item["audio"]["bytes"]
             genre_item = data_item['genre']
+            if genre_item not in eachGenreCount:
+                eachGenreCount[genre_item] = 0
+            eachGenreCount[genre_item] = eachGenreCount.get(genre_item, 0) + 1
 
             try:
                 waveform = ffmpeg_decode(audio_item)
@@ -43,6 +47,9 @@ class SongsDataset(Dataset):
                 self.genre_labels.append(genre_item)
             except Exception as e: 
                 print("SongsDataset Error:", e)
+        
+        for genre in eachGenreCount:
+            print(f"Genre: {genre}, Count: {eachGenreCount[genre]}")
 
         for idx in range(len(self.genre_labels)):
             print(self.genre_labels[idx])
