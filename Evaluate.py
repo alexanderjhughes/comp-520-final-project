@@ -9,11 +9,11 @@ parser = argparse.ArgumentParser(
 )
 
 parser.add_argument(
-    '-o',
-    '--output_file_name',
+    '-i',
+    '--input_file_name',
     type=str,
     default="gru_model.pth",
-    help='Output file name for the trained model'
+    help='Input file name for the trained model'
 )
 
 parser.add_argument(
@@ -73,8 +73,8 @@ def evaluate_model(model, device, validation_samples, labels):
 
 def main():
     args = parser.parse_args()
-    print("Evaluating model from file:", args.output_file_name, 'with hidden layers:', args.hidden_layers_count, '\n\n')
-    model, device = load_model(args.output_file_name, args.hidden_layers_count)
+    print("Evaluating model from file:", args.input_file_name, 'with hidden layers:', args.hidden_layers_count, '\n\n')
+    model, device = load_model(args.input_file_name, args.hidden_layers_count)
     validation_dataset, validation_labels = load_dataset()
 
     accuracy, loss = evaluate_model(model, device, validation_dataset, validation_labels)
