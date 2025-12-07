@@ -47,9 +47,6 @@ class SongsDataset(Dataset):
                 self.genre_labels.append(genre_item)
             except Exception as e: 
                 print("SongsDataset Error:", e)
-        
-        for genre in eachGenreCount:
-            print(f"Genre: {genre}, Count: {eachGenreCount[genre]}")
 
         for idx in range(len(self.genre_labels)):
             print(self.genre_labels[idx])
@@ -75,6 +72,10 @@ class SongsDataset(Dataset):
             print(self.genres_uniq)
             temp_tensor = torch.tensor([self.validation_genre_labels[idx]], dtype=torch.long)
             self.validation_genre_labels_tensors.append(temp_tensor)
+
+        print("Genre distribution in training data:")
+        for genre in eachGenreCount:
+            print(f"Genre: {genre}, Count: {eachGenreCount[genre]}")
 
     def __len__(self):
         return len(self.data)
