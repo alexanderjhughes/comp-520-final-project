@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from torch import nn
 import torch
 import argparse
@@ -27,7 +28,7 @@ parser.add_argument(
     '-o',
     '--output_file_name',
     type=str,
-    default="rnn_model.pth",
+    default="gru_model.pth",
     help='Output file name for the trained model'
 )
 
@@ -82,7 +83,7 @@ def main():
     args = parser.parse_args()
     dataset = SongsFeatureDataset("songsdata-november-24")
     rnn = SongsFeatureRNN(args.hidden_layers_count)
-    print("RNN Initialized: ", rnn)
+    print("GRU Initialized: ", rnn)
     print('Starting Training...')
     print(Train.train(rnn, dataset.data, n_epoch=args.epochs, learning_rate=args.learning_rate, output_file_name=args.output_file_name))
 
