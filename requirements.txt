@@ -4,3 +4,5 @@ torch==2.2.0
 torchaudio==2.2.0
 ffmpeg-python==0.2.0
 numpy==1.26.4
+scikit-learn==1.7
+matplotlib==3.10

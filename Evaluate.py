@@ -2,6 +2,8 @@
 import torch
 import torch.nn as nn
 import argparse
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+import matplotlib.pyplot as plt
 from FeatureTraining import SongsFeatureRNN
 
 parser = argparse.ArgumentParser(
@@ -47,6 +49,8 @@ def load_dataset():
 def evaluate_model(model, device, validation_samples, labels):
     print("Evaluating Model\n\n")
     criterion = nn.NLLLoss()
+    correct_labels = []
+    predictions = []
     loss = 0
     correctly_predicted = 0
     total_samples = len(validation_samples)
@@ -55,16 +59,22 @@ def evaluate_model(model, device, validation_samples, labels):
         for i in range(total_samples):
             current_sample = validation_samples[i].to(device)
             current_label = labels[i].to(device)
-
+            correct_labels.append(current_label.item())
+            
             result = model(current_sample)
             prediction = result.argmax(dim=1)
+            predictions.append(prediction.item())
             #print('Prediction: ', prediction.item())
             #print('actual: ', current_label.item())
             if prediction.item() == current_label.item():
                 correctly_predicted += 1
 
-
             loss += criterion(result, current_label).item()
+
+    matrix = confusion_matrix(correct_labels, predictions)
+    #print(matrix)
+    ConfusionMatrixDisplay(matrix, display_labels=genres_uniq).plot(xticks_rotation="vertical")
+    plt.show()
 
     final_loss = loss / total_samples
     final_accuracy = correctly_predicted / total_samples
