@@ -40,35 +40,44 @@ parser.add_argument(
     help='Number of hidden layers in the GRU'
 )
 
-class SongsFeatureRNN(nn.Module):
-    def __init__(self, hidden_layers_count= 1):
-        super(SongsFeatureRNN, self).__init__()
 
+# CNN-based model for feature classification
+class SongsFeatureCNN(nn.Module):
+    def __init__(self, hidden_layers_count=1):
+        super(SongsFeatureCNN, self).__init__()
         self.genres_uniq = ['Electronic', 'Experimental', 'Folk', 'Hip-Hop', 'Instrumental', 'International', 'Pop', 'Rock']
         self.input_size = 128
-        self.hidden_size = 64
-        self.hidden_layers = hidden_layers_count
-        self.layernorm = nn.LayerNorm(self.hidden_size)
-        self.attention = nn.Linear(self.hidden_size, 1)
+        self.num_classes = len(self.genres_uniq)
+        self.hidden_layers_count = hidden_layers_count
 
-        self.rnn = nn.GRU(self.input_size, self.hidden_size, self.hidden_layers)
-        self.h2o = nn.Linear(self.hidden_size, len(self.genres_uniq))
+        # Define the first conv layer
+        self.conv_layers = nn.ModuleList()
+        in_channels = self.input_size
+        out_channels = 128
+        for i in range(hidden_layers_count):
+            self.conv_layers.append(nn.Conv1d(in_channels, out_channels, kernel_size=3, padding=1))
+            self.conv_layers.append(nn.BatchNorm1d(out_channels))
+            in_channels = out_channels
+            out_channels = max(32, out_channels // 2)  # Decrease channels, but not below 32
+
+        self.global_pool = nn.AdaptiveAvgPool1d(1)
+        self.fc = nn.Linear(in_channels, self.num_classes)
         self.softmax = nn.LogSoftmax(dim=1)
-    
+
     def forward(self, line_tensor):
-        rnn_out, hidden = self.rnn(line_tensor.permute(1, 0, 2), None)
-        rnn_out = self.layernorm(rnn_out)
-        attn_weights = torch.softmax(self.attention(rnn_out),dim=0)
-        output = (attn_weights * rnn_out).sum(dim=0)
-        output = self.h2o(output)
-        output = self.softmax(output)
-
-        return output
-
-    def label_from_output(output, output_labels):
-        top_n, top_i = output.topk(1)
-        label_i = top_i[0].item()
-        return output_labels[label_i], label_i
+        # line_tensor: (batch, seq_len, input_size) or (seq_len, input_size)
+        if line_tensor.dim() == 2:
+            line_tensor = line_tensor.unsqueeze(0)  # (1, seq_len, input_size)
+        x = line_tensor.permute(0, 2, 1)  # (batch, input_size, seq_len)
+        for i in range(0, len(self.conv_layers), 2):
+            x = self.conv_layers[i](x)
+            x = self.conv_layers[i+1](x)
+            x = torch.relu(x)
+        x = self.global_pool(x)  # (batch, channels, 1)
+        x = x.squeeze(-1)        # (batch, channels)
+        x = self.fc(x)
+        x = self.softmax(x)
+        return x
 
 class SongsFeatureDataset():
     def __init__(self, data_dir):
@@ -82,7 +91,7 @@ class SongsFeatureDataset():
 def main():
     args = parser.parse_args()
     dataset = SongsFeatureDataset("songsdata-november-24")
-    rnn = SongsFeatureRNN(args.hidden_layers_count)
+    rnn = SongsFeatureCNN(args.hidden_layers_count)
     print("GRU Initialized: ", rnn)
     print('Starting Training...')
     print(Train.train(rnn, dataset.data, n_epoch=args.epochs, learning_rate=args.learning_rate, output_file_name=args.output_file_name))
