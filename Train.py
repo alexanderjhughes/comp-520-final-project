@@ -3,7 +3,7 @@ from torch import nn
 import numpy as np
 from tqdm import tqdm
 
-def train(rnn, training_data, n_epoch, learning_rate, output_file_name = 'gru_model.pth', n_batch_size = 64, report_every = 50, criterion = nn.NLLLoss()):
+def train(rnn, training_data, n_epoch, learning_rate, output_file_name = 'gru_model.pth', n_batch_size = 64, report_every = 50, criterion = nn.CrossEntropyLoss()):
     """
     Learn on a batch of training_data for a specified number of iterations and reporting thresholds
     """
