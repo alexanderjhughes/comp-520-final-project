@@ -64,12 +64,15 @@ def evaluate_model(model, device, validation_samples, labels):
             result = model(current_sample)
             prediction = result.argmax(dim=1)
             predictions.append(prediction.item())
-            #print('Prediction: ', prediction.item())
-            #print('actual: ', current_label.item())
+            print('Prediction: ', prediction.item())
+            print('actual: ', current_label.item())
             if prediction.item() == current_label.item():
                 correctly_predicted += 1
 
-            loss += criterion(result, current_label).item()
+            # Before loss calculation
+            if current_label.dim() > 0:
+                current_label = current_label.squeeze()
+            loss += criterion(result, current_label)
 
     matrix = confusion_matrix(correct_labels, predictions)
     #print(matrix)
