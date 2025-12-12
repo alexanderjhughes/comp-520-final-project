@@ -48,7 +48,7 @@ def load_dataset():
 
 def evaluate_model(model, device, validation_samples, labels):
     print("Evaluating Model\n\n")
-    criterion = nn.NLLLoss()
+    criterion = nn.CrossEntropyLoss()
     correct_labels = []
     predictions = []
     loss = 0
