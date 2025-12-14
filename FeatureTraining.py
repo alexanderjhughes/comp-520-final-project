@@ -5,7 +5,7 @@ import argparse
 import Train
 
 parser = argparse.ArgumentParser(
-    description='Train GRU on Songs Dataset Features'
+    description='Train LSTM on Songs Dataset Features'
 )
 
 parser.add_argument(
@@ -28,7 +28,7 @@ parser.add_argument(
     '-o',
     '--output_file_name',
     type=str,
-    default="gru_model.pth",
+    default="lstm_model.pth",
     help='Output file name for the trained model'
 )
 
@@ -37,7 +37,7 @@ parser.add_argument(
     '--hidden_layers_count',
     type=int,
     default=1,
-    help='Number of hidden layers in the GRU'
+    help='Number of hidden layers in the LSTM'
 )
 
 class SongsFeatureRNN(nn.Module):
@@ -48,10 +48,11 @@ class SongsFeatureRNN(nn.Module):
         self.input_size = 128
         self.hidden_size = 64
         self.hidden_layers = hidden_layers_count
+        self.dropout_rate = 0.2
         self.layernorm = nn.LayerNorm(self.hidden_size)
         self.attention = nn.Linear(self.hidden_size, 1)
 
-        self.rnn = nn.GRU(self.input_size, self.hidden_size, self.hidden_layers)
+        self.rnn = nn.LSTM(self.input_size, self.hidden_size, self.hidden_layers, dropout=self.dropout_rate)
         self.h2o = nn.Linear(self.hidden_size, len(self.genres_uniq))
         self.softmax = nn.LogSoftmax(dim=1)
     
@@ -83,7 +84,7 @@ def main():
     args = parser.parse_args()
     dataset = SongsFeatureDataset("songsdata-november-24")
     rnn = SongsFeatureRNN(args.hidden_layers_count)
-    print("GRU Initialized: ", rnn)
+    print("LSTM Initialized: ", rnn)
     print('Starting Training...')
     print(Train.train(rnn, dataset.data, n_epoch=args.epochs, learning_rate=args.learning_rate, output_file_name=args.output_file_name))
 

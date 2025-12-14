@@ -7,14 +7,14 @@ import matplotlib.pyplot as plt
 from FeatureTraining import SongsFeatureRNN
 
 parser = argparse.ArgumentParser(
-    description='Evaluate GRU on Songs Dataset Features'
+    description='Evaluate LSTM on Songs Dataset Features'
 )
 
 parser.add_argument(
     '-i',
     '--input_file_name',
     type=str,
-    default="gru_model.pth",
+    default="lstm_model.pth",
     help='Input file name for the trained model'
 )
 
@@ -23,7 +23,7 @@ parser.add_argument(
     '--hidden_layers_count',
     type=int,
     default=1,
-    help='Number of hidden layers in the GRU'
+    help='Number of hidden layers in the LSTM'
 )
 
 validation_data_dir = "songsdata-november-24_validation_audio_features.pt"
