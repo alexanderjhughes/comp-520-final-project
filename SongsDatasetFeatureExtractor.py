@@ -32,27 +32,27 @@ class SongsDataset(Dataset):
         eachGenreCount = {}
         # build the audio and genre data by building the tensors from each audio item
         # and storing them with genre labels
-        for data_item in train_data:
-            audio_item = data_item["audio"]["bytes"]
-            genre_item = data_item['genre']
-            if genre_item not in eachGenreCount:
-                eachGenreCount[genre_item] = 0
-            eachGenreCount[genre_item] = eachGenreCount.get(genre_item, 0) + 1
+        # for data_item in train_data:
+        #     audio_item = data_item["audio"]["bytes"]
+        #     genre_item = data_item['genre']
+        #     if genre_item not in eachGenreCount:
+        #         eachGenreCount[genre_item] = 0
+        #     eachGenreCount[genre_item] = eachGenreCount.get(genre_item, 0) + 1
 
-            try:
-                waveform = ffmpeg_decode(audio_item)
-                audio_inputs = feature_extractor(waveform.numpy(), sampling_rate = 16000, return_tensors="pt")
-                self.data.append(audio_inputs)
-                self.data_tensors.append(audio_inputs.input_values)
-                self.genre_labels.append(genre_item)
-            except Exception as e: 
-                print("SongsDataset Error:", e)
+        #     try:
+        #         waveform = ffmpeg_decode(audio_item)
+        #         audio_inputs = feature_extractor(waveform.numpy(), sampling_rate = 16000, return_tensors="pt")
+        #         self.data.append(audio_inputs)
+        #         self.data_tensors.append(audio_inputs.input_values)
+        #         self.genre_labels.append(genre_item)
+        #     except Exception as e: 
+        #         print("SongsDataset Error:", e)
 
-        for idx in range(len(self.genre_labels)):
-            print(self.genre_labels[idx])
-            print(self.genres_uniq)
-            temp_tensor = torch.tensor([self.genre_labels[idx]], dtype=torch.long)
-            self.genre_labels_tensors.append(temp_tensor)
+        # for idx in range(len(self.genre_labels)):
+        #     print(self.genre_labels[idx])
+        #     print(self.genres_uniq)
+        #     temp_tensor = torch.tensor([self.genre_labels[idx]], dtype=torch.long)
+        #     self.genre_labels_tensors.append(temp_tensor)
 
         for val_data_item in validate_data:
             audio_item = val_data_item["audio"]["bytes"]
@@ -94,13 +94,13 @@ class SongsDataset(Dataset):
     
     def save_all(self, prefix="songsdata"):
         self.save_tensors(prefix)
-        np.save(f"{prefix}_genre_labels.npy", np.array(self.genre_labels, dtype=object))
+        # np.save(f"{prefix}_genre_labels.npy", np.array(self.genre_labels, dtype=object))
         np.save(f"{prefix}_validation_genre_labels.npy", np.array(self.validation_genre_labels, dtype=object))
 
     def save_tensors(self, prefix="songsdata"):
-        torch.save(self.data, f"{prefix}_data.pt")
-        torch.save(self.data_tensors, f"{prefix}_audio_features.pt")
-        torch.save(self.genre_labels_tensors, f"{prefix}_genre_labels.pt")
+        # torch.save(self.data, f"{prefix}_data.pt")
+        # torch.save(self.data_tensors, f"{prefix}_audio_features.pt")
+        # torch.save(self.genre_labels_tensors, f"{prefix}_genre_labels.pt")
         torch.save(self.validation_data, f"{prefix}_validation_data.pt")
         torch.save(self.validation_data_tensors, f"{prefix}_validation_audio_features.pt")
         torch.save(self.validation_genre_labels_tensors, f"{prefix}_validation_genre_labels.pt")
