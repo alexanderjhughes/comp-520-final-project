@@ -23,8 +23,8 @@ class SongsDataset(Dataset):
         train_data = dataset['train']
         #disable default audio decoder
         train_data = train_data.cast_column("audio", Audio(decode=False))
-        validation_data = dataset['validation']
-        validation_data = validation_data.cast_column("audio", Audio(decode=False))
+        validate_data = dataset['validation']
+        validate_data = validate_data.cast_column("audio", Audio(decode=False))
 
         # construct the AST feature extractor to pull features from the 
         feature_extractor = ASTFeatureExtractor(num_mel_bins=128)
@@ -54,7 +54,7 @@ class SongsDataset(Dataset):
             temp_tensor = torch.tensor([self.genre_labels[idx]], dtype=torch.long)
             self.genre_labels_tensors.append(temp_tensor)
 
-        for val_data_item in validation_data:
+        for val_data_item in validate_data:
             audio_item = val_data_item["audio"]["bytes"]
             genre_item = val_data_item['genre']
 

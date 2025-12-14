@@ -22,7 +22,7 @@ parser.add_argument(
     '-hl',
     '--hidden_layers_count',
     type=int,
-    default=1,
+    default=2,
     help='Number of hidden layers in the LSTM'
 )
 
@@ -30,7 +30,7 @@ validation_data_dir = "songsdata-november-24_validation_audio_features.pt"
 validation_labels_dir = "songsdata-november-24_validation_genre_labels.pt"
 genres_uniq = ['Electronic', 'Experimental', 'Folk', 'Hip-Hop', 'Instrumental', 'International', 'Pop', 'Rock']
 
-def load_model(model_name, hidden_layers_count=1):
+def load_model(model_name, hidden_layers_count=2):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     model = SongsFeatureRNN(hidden_layers_count)
@@ -64,8 +64,8 @@ def evaluate_model(model, device, validation_samples, labels):
             result = model(current_sample)
             prediction = result.argmax(dim=1)
             predictions.append(prediction.item())
-            print('Prediction: ', prediction.item())
-            print('actual: ', current_label.item())
+            # print('Prediction: ', prediction.item())
+            # print('actual: ', current_label.item())
             if prediction.item() == current_label.item():
                 correctly_predicted += 1
 
