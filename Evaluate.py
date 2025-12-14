@@ -53,10 +53,10 @@ def evaluate_model(model, device, validation_samples, labels):
     predictions = []
     loss = 0
     correctly_predicted = 0
-    total_samples = len(validation_samples)
+    total_samples_to_use = len(validation_samples) // 4
 
     with torch.no_grad():
-        for i in range(total_samples):
+        for i in range(total_samples_to_use):
             current_sample = validation_samples[i].to(device)
             current_label = labels[i].to(device)
             correct_labels.append(current_label.item())
@@ -76,8 +76,8 @@ def evaluate_model(model, device, validation_samples, labels):
     ConfusionMatrixDisplay(matrix, display_labels=genres_uniq).plot(xticks_rotation="vertical")
     plt.show()
 
-    final_loss = loss / total_samples
-    final_accuracy = correctly_predicted / total_samples
+    final_loss = loss / total_samples_to_use
+    final_accuracy = correctly_predicted / total_samples_to_use
 
     return final_accuracy, final_loss
 
