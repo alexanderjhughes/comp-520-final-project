@@ -46,7 +46,7 @@ def load_dataset():
     return validation_dataset, validation_labels 
     print("Dataset loaded\n\n")
 
-def evaluate_model(model, device, validation_samples, labels):
+def evaluate_model(model, device, validation_samples, labels, input_file_name='lstm_model.pth'):
     print("Evaluating Model\n\n")
     criterion = nn.CrossEntropyLoss()
     correct_labels = []
@@ -74,6 +74,8 @@ def evaluate_model(model, device, validation_samples, labels):
     matrix = confusion_matrix(correct_labels, predictions)
     #print(matrix)
     ConfusionMatrixDisplay(matrix, display_labels=genres_uniq).plot(xticks_rotation="vertical")
+    formatted_input_file_name = input_file_name.replace('.pth', '')
+    plt.savefig('confusion_matrices/confusion_matrix-' + formatted_input_file_name + '.png')
     plt.show()
 
     final_loss = loss / total_samples
@@ -87,7 +89,7 @@ def main():
     model, device = load_model(args.input_file_name, args.hidden_layers_count)
     validation_dataset, validation_labels = load_dataset()
 
-    accuracy, loss = evaluate_model(model, device, validation_dataset, validation_labels)
+    accuracy, loss = evaluate_model(model, device, validation_dataset, validation_labels, input_file_name=args.input_file_name)
     print(f"Validation Accuracy: {accuracy:.4f}\n")
     print(f"Validation Loss: {loss:.4f}\n\n")
 
