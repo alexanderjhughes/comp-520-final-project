@@ -18,12 +18,17 @@ def train(rnn, training_data, n_epoch, learning_rate, output_file_name = 'lstm_m
     start = time.time()
     print(f"training on data set with n = {len(training_data)}")
 
+    # having an issue w/ overfitting
+    # so lets cut the dataset in to 1/4 size
+    total_num_to_use = len(training_data) // 4
+    trimmed_training_data = training_data[0:total_num_to_use]
+
     for iter in range(1, n_epoch + 1):
         rnn.zero_grad() # clear the gradients
 
         # create some minibatches
         # we cannot use dataloaders because each of our names is a different length
-        batches = list(range(len(training_data)))
+        batches = list(range(len(trimmed_training_data)))
         random.shuffle(batches)
         batches = np.array_split(batches, len(batches) // n_batch_size )
 
@@ -34,8 +39,8 @@ def train(rnn, training_data, n_epoch, learning_rate, output_file_name = 'lstm_m
             batch_loss = 0.0
             optimizer.zero_grad()
             for i in batch: #for each example in this batch
-                #print(training_data[i])
-                (genre_label_tensor, feature_tensor) = training_data[i]
+                #print(trimmed_training_data[i])
+                (genre_label_tensor, feature_tensor) = trimmed_training_data[i]
                 feature_tensor = feature_tensor.to(device)
                 genre_label_tensor = genre_label_tensor.to(device)
                 output = rnn(feature_tensor)
