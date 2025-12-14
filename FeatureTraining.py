@@ -36,12 +36,12 @@ parser.add_argument(
     '-hl',
     '--hidden_layers_count',
     type=int,
-    default=1,
+    default=2,
     help='Number of hidden layers in the LSTM'
 )
 
 class SongsFeatureRNN(nn.Module):
-    def __init__(self, hidden_layers_count= 1):
+    def __init__(self, hidden_layers_count = 2):
         super(SongsFeatureRNN, self).__init__()
 
         self.genres_uniq = ['Electronic', 'Experimental', 'Folk', 'Hip-Hop', 'Instrumental', 'International', 'Pop', 'Rock']
