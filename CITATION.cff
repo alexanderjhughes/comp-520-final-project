@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "PSU Comp-520 Music Genre Classification with RNNs"
+authors:
+  - family-names: "Chang"
+    given-names: "Ryan"
+  - family-names: "Horne"
+    given-names: "Joel"
+  - family-names: "Hughes"
+    given-names: "Alexander"
+version: "1.0.0"
+date-released: "2025-12-19"
+repository-code: https://github.com/alexanderjhughes/comp-520-final-project
