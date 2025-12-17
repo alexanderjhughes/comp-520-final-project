@@ -7,14 +7,14 @@ import matplotlib.pyplot as plt
 from FeatureTraining import SongsFeatureRNN
 
 parser = argparse.ArgumentParser(
-    description='Evaluate GRU on Songs Dataset Features'
+    description='Evaluate LSTM on Songs Dataset Features'
 )
 
 parser.add_argument(
     '-i',
     '--input_file_name',
     type=str,
-    default="gru_model.pth",
+    default="lstm_model.pth",
     help='Input file name for the trained model'
 )
 
@@ -22,15 +22,15 @@ parser.add_argument(
     '-hl',
     '--hidden_layers_count',
     type=int,
-    default=1,
-    help='Number of hidden layers in the GRU'
+    default=2,
+    help='Number of hidden layers in the LSTM'
 )
 
 validation_data_dir = "songsdata-november-24_validation_audio_features.pt"
 validation_labels_dir = "songsdata-november-24_validation_genre_labels.pt"
 genres_uniq = ['Electronic', 'Experimental', 'Folk', 'Hip-Hop', 'Instrumental', 'International', 'Pop', 'Rock']
 
-def load_model(model_name, hidden_layers_count=1):
+def load_model(model_name, hidden_layers_count=2):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     model = SongsFeatureRNN(hidden_layers_count)
@@ -46,9 +46,9 @@ def load_dataset():
     return validation_dataset, validation_labels 
     print("Dataset loaded\n\n")
 
-def evaluate_model(model, device, validation_samples, labels):
+def evaluate_model(model, device, validation_samples, labels, input_file_name='lstm_model.pth'):
     print("Evaluating Model\n\n")
-    criterion = nn.NLLLoss()
+    criterion = nn.CrossEntropyLoss()
     correct_labels = []
     predictions = []
     loss = 0
@@ -64,16 +64,18 @@ def evaluate_model(model, device, validation_samples, labels):
             result = model(current_sample)
             prediction = result.argmax(dim=1)
             predictions.append(prediction.item())
-            #print('Prediction: ', prediction.item())
-            #print('actual: ', current_label.item())
+            # print('Prediction: ', prediction.item())
+            # print('actual: ', current_label.item())
             if prediction.item() == current_label.item():
                 correctly_predicted += 1
 
-            loss += criterion(result, current_label).item()
+            loss += criterion(result, current_label)
 
     matrix = confusion_matrix(correct_labels, predictions)
     #print(matrix)
     ConfusionMatrixDisplay(matrix, display_labels=genres_uniq).plot(xticks_rotation="vertical")
+    formatted_input_file_name = input_file_name.replace('.pth', '')
+    plt.savefig('confusion_matrices/confusion_matrix-' + formatted_input_file_name + '.png')
     plt.show()
 
     final_loss = loss / total_samples
@@ -87,7 +89,7 @@ def main():
     model, device = load_model(args.input_file_name, args.hidden_layers_count)
     validation_dataset, validation_labels = load_dataset()
 
-    accuracy, loss = evaluate_model(model, device, validation_dataset, validation_labels)
+    accuracy, loss = evaluate_model(model, device, validation_dataset, validation_labels, input_file_name=args.input_file_name)
     print(f"Validation Accuracy: {accuracy:.4f}\n")
     print(f"Validation Loss: {loss:.4f}\n\n")
 

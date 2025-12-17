@@ -5,7 +5,7 @@ import argparse
 import Train
 
 parser = argparse.ArgumentParser(
-    description='Train GRU on Songs Dataset Features'
+    description='Train LSTM on Songs Dataset Features'
 )
 
 parser.add_argument(
@@ -28,7 +28,7 @@ parser.add_argument(
     '-o',
     '--output_file_name',
     type=str,
-    default="gru_model.pth",
+    default="lstm_model.pth",
     help='Output file name for the trained model'
 )
 
@@ -36,22 +36,25 @@ parser.add_argument(
     '-hl',
     '--hidden_layers_count',
     type=int,
-    default=1,
-    help='Number of hidden layers in the GRU'
+    default=2,
+    help='Number of hidden layers in the LSTM'
 )
 
 class SongsFeatureRNN(nn.Module):
-    def __init__(self, hidden_layers_count= 1):
+    def __init__(self, hidden_layers_count = 2):
         super(SongsFeatureRNN, self).__init__()
 
         self.genres_uniq = ['Electronic', 'Experimental', 'Folk', 'Hip-Hop', 'Instrumental', 'International', 'Pop', 'Rock']
         self.input_size = 128
-        self.hidden_size = 64
+        self.hidden_size = 128
         self.hidden_layers = hidden_layers_count
+        self.dropout_rate = 0.3
         self.layernorm = nn.LayerNorm(self.hidden_size)
         self.attention = nn.Linear(self.hidden_size, 1)
 
-        self.rnn = nn.GRU(self.input_size, self.hidden_size, self.hidden_layers)
+        self.rnn = nn.LSTM(self.input_size, self.hidden_size, self.hidden_layers, dropout=self.dropout_rate)
+        self.dropout = nn.Dropout(0.4)
+        self.linear2 = nn.Linear(self.hidden_size, self.hidden_size)
         self.h2o = nn.Linear(self.hidden_size, len(self.genres_uniq))
         self.softmax = nn.LogSoftmax(dim=1)
     
@@ -60,9 +63,12 @@ class SongsFeatureRNN(nn.Module):
         rnn_out = self.layernorm(rnn_out)
         attn_weights = torch.softmax(self.attention(rnn_out),dim=0)
         output = (attn_weights * rnn_out).sum(dim=0)
+        output = self.dropout(output)
+        output = self.linear2(output)
+        output = torch.relu(output)
+        output = self.dropout(output)
         output = self.h2o(output)
         output = self.softmax(output)
-
         return output
 
     def label_from_output(output, output_labels):
@@ -83,7 +89,7 @@ def main():
     args = parser.parse_args()
     dataset = SongsFeatureDataset("songsdata-november-24")
     rnn = SongsFeatureRNN(args.hidden_layers_count)
-    print("GRU Initialized: ", rnn)
+    print("LSTM Initialized: ", rnn)
     print('Starting Training...')
     print(Train.train(rnn, dataset.data, n_epoch=args.epochs, learning_rate=args.learning_rate, output_file_name=args.output_file_name))
 
